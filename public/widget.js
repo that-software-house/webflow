@@ -40,34 +40,111 @@
       body: JSON.stringify({prompt: txt})
     });
 
-    const reader = resp.body.getReader();
     let aiTxt = '';
-    let chunkBuffer = '';
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
 
-      // accumulate raw text
-      chunkBuffer += new TextDecoder().decode(value);
+    // If the server streams as Server-Sent Events (SSE) with lines like: "data: {json}\n\n",
+    // this parser will handle it. It also tolerates NDJSON (one JSON object per line).
+    try {
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`HTTP ${resp.status}: ${text}`);
+      }
 
-      // split on closing brace followed by possible whitespace
-      const segments = chunkBuffer.split(/}\s*/);
-      chunkBuffer = segments.pop(); // leftover partial chunk
+      if (!resp.body || !resp.body.getReader) {
+        // Non-streaming fallback: expect a full JSON response
+        const full = await resp.json();
+        const content = full?.choices?.[0]?.message?.content || full?.message?.content || '';
+        if (content) {
+          aiTxt += content;
+          bubble = append('assistant', aiTxt, bubble);
+        }
+        return;
+      }
 
-      for (const seg of segments) {
-        const jsonStr = seg.trim();
-        if (!jsonStr) continue;
-        try {
-          const obj = JSON.parse(jsonStr + '}');
-          const delta = obj?.choices?.[0]?.delta;
-          if (delta?.content) {
-            aiTxt += delta.content;
-            bubble = append('assistant', aiTxt, bubble);
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Try splitting as SSE frames first (\n\n delimited)
+        let frames = buffer.split('\n\n');
+        buffer = frames.pop(); // keep the trailing partial frame
+
+        for (const frame of frames) {
+          // Each SSE frame may contain multiple lines; only lines starting with "data:" are payloads
+          const lines = frame.split('\n');
+          for (const line of lines) {
+            if (!line.startsWith('data:')) continue;
+            const data = line.slice(5).trim();
+            if (!data) continue;
+            if (data === '[DONE]') {
+              // graceful end signal used by some backends
+              return;
+            }
+            try {
+              const obj = JSON.parse(data);
+              const delta = obj?.choices?.[0]?.delta?.content
+                ?? obj?.delta?.content
+                ?? obj?.message?.content
+                ?? '';
+              if (delta) {
+                aiTxt += delta;
+                bubble = append('assistant', aiTxt, bubble);
+              }
+            } catch (err) {
+              // If the line isn't JSON (e.g., commentary), skip it
+              console.warn('Non-JSON SSE line skipped:', data);
+            }
           }
-        } catch (err) {
-          console.error('Chunk parse error:', err);
+        }
+
+        // If nothing was parsed as SSE, also try NDJSON within the same chunk
+        // (objects separated by newlines). This is a no-op when SSE already consumed content.
+        const ndjsonParts = buffer.split('\n');
+        // Keep only the last partial line in buffer
+        buffer = ndjsonParts.pop();
+        for (const part of ndjsonParts) {
+          const jsonStr = part.trim();
+          if (!jsonStr) continue;
+          try {
+            const obj = JSON.parse(jsonStr);
+            const delta = obj?.choices?.[0]?.delta?.content
+              ?? obj?.delta?.content
+              ?? obj?.message?.content
+              ?? '';
+            if (delta) {
+              aiTxt += delta;
+              bubble = append('assistant', aiTxt, bubble);
+            }
+          } catch (err) {
+            console.warn('NDJSON parse skipped:', jsonStr);
+          }
         }
       }
+
+      // Flush any final non-empty buffered JSON (rare)
+      const tail = buffer.trim();
+      if (tail && tail !== '[DONE]') {
+        try {
+          const obj = JSON.parse(tail);
+          const delta = obj?.choices?.[0]?.delta?.content
+            ?? obj?.delta?.content
+            ?? obj?.message?.content
+            ?? '';
+          if (delta) {
+            aiTxt += delta;
+            bubble = append('assistant', aiTxt, bubble);
+          }
+        } catch {}
+      }
+    } catch (err) {
+      console.error('Stream handling error:', err);
+      bubble = append('assistant', `Sorry, something went wrong: ${err.message}`, bubble);
     }
   });
 
