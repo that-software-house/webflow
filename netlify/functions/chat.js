@@ -14,7 +14,8 @@ export default async (req, context) => {
     return new Response(null, { status: 204, headers: CORS });
   }
   try {
-    const { prompt } = JSON.parse(req.body || '{}');
+    const body = await req.text();
+    const { prompt } = JSON.parse(body || '{}');
     if (!prompt) return context.json({ error: 'No prompt' }, { status: 400 });
 
     const completion = await openai.chat.completions.create({
