@@ -1,0 +1,30 @@
+{
+  "name": "tsh-chatbot",
+  "version": "1.0.0",
+  "description": "Embeddable OpenAI-powered chatbot widget for the That Software House Webflow site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "netlify dev",
+    "build": "vite build",
+    "deploy": "netlify deploy --prod",
+    "lint": "eslint . --ext .js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openai": "^5.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.32.0",
+    "netlify-cli": "^17.18.0",
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "netlify": {
+    "functions": "netlify/functions"
+  }
+}
