@@ -42,11 +42,32 @@
 
     const reader = resp.body.getReader();
     let aiTxt = '';
+    let chunkBuffer = '';
     while (true) {
-      const {value, done} = await reader.read();
+      const { value, done } = await reader.read();
       if (done) break;
-      aiTxt += new TextDecoder().decode(value);
-      bubble = append('assistant', aiTxt, bubble);
+
+      // accumulate raw text
+      chunkBuffer += new TextDecoder().decode(value);
+
+      // split on closing brace followed by possible whitespace
+      const segments = chunkBuffer.split(/}\s*/);
+      chunkBuffer = segments.pop(); // leftover partial chunk
+
+      for (const seg of segments) {
+        const jsonStr = seg.trim();
+        if (!jsonStr) continue;
+        try {
+          const obj = JSON.parse(jsonStr + '}');
+          const delta = obj?.choices?.[0]?.delta;
+          if (delta?.content) {
+            aiTxt += delta.content;
+            bubble = append('assistant', aiTxt, bubble);
+          }
+        } catch (err) {
+          console.error('Chunk parse error:', err);
+        }
+      }
     }
   });
 
