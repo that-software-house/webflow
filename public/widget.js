@@ -32,6 +32,7 @@
     e.preventDefault();
     const txt = q.value.trim(); if (!txt) return;
     append('user', txt); q.value = '';
+    let bubble = append('assistant', '…'); // placeholder bubble
 
     const resp = await fetch(CHAT_ENDPOINT, {
       method: 'POST',
@@ -45,18 +46,22 @@
       const {value, done} = await reader.read();
       if (done) break;
       aiTxt += new TextDecoder().decode(value);
-      append('assistant', aiTxt, true);
+      bubble = append('assistant', aiTxt, bubble);
     }
   });
 
-  function append(role, text, replace=false) {
-    if (replace) msgs.lastChild.textContent = text;
-    else {
+  function append(role, text, elementRef=null) {
+    if (elementRef) {
+      elementRef.textContent = text;
+      msgs.scrollTop = msgs.scrollHeight;
+      return elementRef;
+    } else {
       const bubble = document.createElement('div');
       bubble.textContent = text;
       bubble.style = `margin-bottom:8px;max-width:80%;padding:8px 12px;
         border-radius:10px;${role==='user'?'background:#6C42E3;color:#fff;margin-left:auto':'background:#f5f5f5'}`;
       msgs.append(bubble); msgs.scrollTop = msgs.scrollHeight;
+      return bubble;
     }
   }
 })();
