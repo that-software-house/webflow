@@ -1,4 +1,5 @@
 (() => {
+  const CHAT_ENDPOINT = 'https://tsh-web-assistant.netlify.app/.netlify/functions/chat';
   const style = `
     #tsh-chat-btn{position:fixed;bottom:24px;right:24px;border-radius:50%;
       width:56px;height:56px;background:#6C42E3;color:#fff;font-size:24px;cursor:pointer}
@@ -32,7 +33,7 @@
     const txt = q.value.trim(); if (!txt) return;
     append('user', txt); q.value = '';
 
-    const resp = await fetch('/.netlify/functions/chat', {
+    const resp = await fetch(CHAT_ENDPOINT, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({prompt: txt})
@@ -44,7 +45,7 @@
       const {value, done} = await reader.read();
       if (done) break;
       aiTxt += new TextDecoder().decode(value);
-      append('assistant', aiTxt, true); // live streaming
+      append('assistant', aiTxt, true);
     }
   });
 
