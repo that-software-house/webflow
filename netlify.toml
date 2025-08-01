@@ -2,3 +2,9 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  edge_functions = "netlify/edge-functions"
+
+# Run the edge rate limiter before the serverless function
+[[edge_functions]]
+path = "/.netlify/functions/chat"
+function = "rate-limit"
