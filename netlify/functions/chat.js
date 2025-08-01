@@ -19,7 +19,7 @@ export default async (req, context) => {
     if (!prompt) return context.json({ error: 'No prompt' }, { status: 400 });
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       stream: true,
       messages: [{ role: "system", content: "You are the helpful TSH website assistant." },
                  { role: "user", content: prompt }]
