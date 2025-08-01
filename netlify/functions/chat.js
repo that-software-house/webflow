@@ -29,7 +29,7 @@ Name\tRole\tSuper-power\tBite-sized Bio
 Snehal Shah\tCTO, Co-Founder\tRapid prototyping & health-tech architecture\t15 yrs in early-stage startups; leads global engineering squad; Batman buff.
 Adam Jankowski\tCDO, Co-Founder\tDesign that converts\t10 yrs turning sketches into polished, user-tested interfaces; lives in Figma.
 Afshin Saniesales\tCCO, Co-Founder\tGo-to-market & partnerships\tScales sales engines, unlocks new revenue streams, coaches founders on pricing & story.
-Lean global crew (7)\tFE, BE, DevOps, UX, QA, AI/Data, Content\t“Follow-the-sun” delivery\tBengaluru · São Paulo · Toronto · London · Madrid · Tokyo · Auckland
+Lean global crew (7)\tFE, BE, DevOps, UX, QA, AI/Data, Content\t“Follow-the-sun” delivery\tBengaluru · Austin · San Francisco · New York · Wroclaw
 
 3. Services & Typical Engagements
 \t1.\tCustom Software & MVP Development
