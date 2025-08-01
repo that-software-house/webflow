@@ -5,7 +5,8 @@ const openai = new OpenAI();
 // CORS headers for Webflow embed on thatsoftwarehouse.com
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type"
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
 export default async (req, context) => {
@@ -26,13 +27,19 @@ export default async (req, context) => {
     });
 
     return new Response(completion.toReadableStream(), {
-      headers: { "Content-Type": "text/plain; charset=utf-8", ...CORS },
+      status: 200,
+      headers: {
+        ...CORS,
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive"
+      }
     });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Server error" }), {
       status: 500,
-      headers: CORS,
+      headers: { "Content-Type": "application/json", ...CORS }
     });
   }
 };
