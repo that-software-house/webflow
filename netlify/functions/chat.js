@@ -4,7 +4,7 @@ const openai = new OpenAI();
 
 // CORS headers for Webflow embed on thatsoftwarehouse.com
 const CORS = {
-  "Access-Control-Allow-Origin": "https://thatsoftwarehouse.com",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
