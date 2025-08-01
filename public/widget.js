@@ -1,5 +1,5 @@
 (() => {
-  // Load Noto Sans font
+  // Load Inter font
   const fontPreconnect1 = document.createElement('link');
   fontPreconnect1.rel = 'preconnect';
   fontPreconnect1.href = 'https://fonts.googleapis.com';
@@ -11,17 +11,17 @@
 
   const fontCss = document.createElement('link');
   fontCss.rel = 'stylesheet';
-  fontCss.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap';
+  fontCss.href = 'https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap';
 
   document.head.append(fontPreconnect1, fontPreconnect2, fontCss);
   const CHAT_ENDPOINT = 'https://tsh-web-assistant.netlify.app/.netlify/functions/chat';
   const style = `
     #tsh-chat-btn{position:fixed;bottom:24px;right:24px;border-radius:50%;
-      width:56px;height:56px;background:#6C42E3;color:#fff;font-size:24px;cursor:pointer;
-      font-family:"Noto Sans", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
+      width:56px;height:56px;background:#000;color:#fff;font-size:24px;cursor:pointer;
+      font-family:"Inter", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
     #tsh-chat-box{display:none;position:fixed;bottom:96px;right:24px;width:320px;
       height:420px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.15);
-      background:#fff;overflow:hidden;font-family:"Noto Sans", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif}
+      background:#fff;overflow:hidden;font-family:"Inter", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif}
     /* add more styles … */
     #tsh-chat-box #msgs h1{font-size:18px;margin:8px 0}
     #tsh-chat-box #msgs h2{font-size:16px;margin:8px 0}
