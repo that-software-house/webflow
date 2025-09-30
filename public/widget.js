@@ -117,6 +117,7 @@
       flex-direction: column;
       height: 100%;
       backdrop-filter: blur(18px);
+      overflow: auto;
     }
     .tsh-chat-header {
       display: flex;
